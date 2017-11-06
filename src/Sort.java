@@ -25,12 +25,13 @@ public abstract class Sort extends JPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
 	
 	private ArrayList<Integer> array;
-	private Color[] colors = {Color.red, Color.orange, Color.yellow, Color.green, Color.cyan, Color.blue, Color.magenta, Color.pink};
+	private Color[] colors;
 	private Map<Integer, Color> colorMap;
 	private int size;
+	private int delay;
 	
 	private JPanel title;
-	protected JLabel text;
+	private JLabel text;
 	private JPanel visual;
 	private Font font;
 	
@@ -59,13 +60,17 @@ public abstract class Sort extends JPanel implements Runnable {
 		array = new ArrayList<>();
 		colorMap = new HashMap<>();
 		colors = gradient(.3,.3,.3,0,2,4, 176, 79, size);
+		// Map elements to gradient colors
 		for (int i=1; i <= size; i++) {
 			array.add(i);
-			colorMap.put(i, colors[(i-1) % colors.length]);
+			colorMap.put(i, colors[i-1]);
 		}
+		// Shuffle array
 		Collections.shuffle(array);
 		display(-1);
+		delay = 50;
 		
+		// Re-render display after resize
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -74,20 +79,32 @@ public abstract class Sort extends JPanel implements Runnable {
 		});
 	}
 	
+	public Sort(ArrayList<Integer> arr) {
+		this(arr.size());
+		array = new ArrayList<>(arr);
+		display(-1);
+	}
+	
 	public abstract void sort() throws InterruptedException;
 	
+	// The display function
 	public void display(int current) {		
 		visual.removeAll();
 		
-		int max = Collections.max(array);
 		for (int i = 0; i < array.size(); i++) {
 			int value = array.get(i);
-			Color color = colorMap.get(value);
-			if (current == i) {
-				color = Color.gray;
-			}
-			RectangleComponent rect = new RectangleComponent(0, 0, visual.getWidth()/max*value, visual.getHeight()/size, color);
-			visual.add(rect);
+			// color is red if index is current iteration index
+			Color color = current == i ? Color.red : Color.white;
+			JPanel container = new JPanel();
+			container.setBackground(Color.white);
+			container.setSize(visual.getWidth(), visual.getHeight()/size);
+			container.setLayout(new BorderLayout());
+			RectangleComponent mark = new RectangleComponent(0, 0, 10, visual.getHeight()/size, color); // Element marker
+			RectangleComponent rect = new RectangleComponent(0, 0, (visual.getWidth()-10)/size*value, visual.getHeight()/size, colorMap.get(value));
+			
+			container.add(mark, BorderLayout.WEST);
+			container.add(rect, BorderLayout.CENTER);
+			visual.add(container);
 		}
 		
 		visual.validate();
@@ -105,16 +122,23 @@ public abstract class Sort extends JPanel implements Runnable {
 		return array;
 	}
 	
+	// A function that swaps values in the ArrayList
 	public void swap(ArrayList<Integer> arr, int i, int j) {
 		int temp = arr.get(i);
 		arr.set(i, arr.get(j));
 		arr.set(j, temp);
 	}
 	
+	// The delay in milliseconds between iterations
 	public int getDelay() {
-		return 50;
+		return delay;
 	}
 	
+	public void setDelay(int delay) {
+		this.delay = delay;
+	}
+	
+	// A function that generates an array containing a color gradient. Found at https://krazydad.com/tutorials/makecolors.php
 	private Color[] gradient(double f1, double f2, double f3, int p1, int p2, int p3, int center, int width, int len) {
 		Color[] colors = new Color[len];
 		for (int i = 0; i < len; i++) {
@@ -124,6 +148,10 @@ public abstract class Sort extends JPanel implements Runnable {
 			colors[i] = new Color(red, green, blue);
 		}
 		return colors;
+	}
+	
+	public void setTitle(String title) {
+		text.setText(title);
 	}
 
 }

@@ -13,7 +13,12 @@ public class BubbleSort extends Sort {
 
 	public BubbleSort(int size) {
 		super(size);
-		super.text.setText("Bubble Sort");
+		super.setTitle("Bubble Sort");
+	}
+	
+	public BubbleSort(ArrayList<Integer> arr) {
+		super(arr);
+		super.setTitle("Bubble Sort");
 	}
 
 	@Override

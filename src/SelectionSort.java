@@ -13,7 +13,12 @@ public class SelectionSort extends Sort {
 
 	public SelectionSort(int size) {
 		super(size);
-		super.text.setText("Selection Sort");
+		super.setTitle("Selection Sort");
+	}
+	
+	public SelectionSort(ArrayList<Integer> arr) {
+		super(arr);
+		super.setTitle("Selection Sort");
 	}
 
 	@Override
